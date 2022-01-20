@@ -15,7 +15,7 @@ Test project to practice RestAssured using the API ServeRest from https://github
 What you need to install on your computer to run the project:
 
 ```
-opnejdk-14
+JDK 8
 ```
 
 ```
