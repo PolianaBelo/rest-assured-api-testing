@@ -1,16 +1,18 @@
 import io.restassured.response.Response;
+import io.restassured.specification.FilterableRequestSpecification;
 import models.User;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static org.hamcrest.Matchers.*;
-import static io.restassured.RestAssured.*;
-import static requests.UserEndpoint.*;
-
+import static requests.UserEndpoints.*;
 import org.testng.annotations.DataProvider;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GetUserTests extends TestBase{
 
+    List<User> listOfRegisteredUsers = new ArrayList<>();
     private User validUser1;
     private User validUser2;
     private User validUser3;
@@ -19,12 +21,47 @@ public class GetUserTests extends TestBase{
     @BeforeClass
     public void generateTestData(){
         validUser1 = new User("Ana Silva", "ana@email.com", "123abc", "true");
-        registerUserRequest(SPEC, validUser1);
+        postUserRequest(SPEC, validUser1);
+        listOfRegisteredUsers.add(validUser1);
         validUser2 = new User("Chico", "chico@email.com", "123abc", "true");
-        registerUserRequest(SPEC, validUser2);
+        postUserRequest(SPEC, validUser2);
+        listOfRegisteredUsers.add(validUser2);
         validUser3 = new User("Maria", "mariasilva@email.com", "lalala123", "false");
-        registerUserRequest(SPEC, validUser3);
+        postUserRequest(SPEC, validUser3);
+        listOfRegisteredUsers.add(validUser3);
         invalidUser1 = new User("Carlos", "carlos@email.com", "minhasenha", "0");
+    }
+
+    @DataProvider(name = "userQueryData")
+    public Object[][] createQueryData () {
+        return new Object[][] {
+                {"nome", validUser1.nome},
+                {"email", validUser2.email}
+        };
+    }
+
+    @Test
+    public void shouldReturnAllUsersAndStatus200(){
+        Response getUserResponse = getUserRequest(SPEC);
+        getUserResponse.
+            then().
+                assertThat().
+                statusCode(200).
+                body("quantidade", equalTo(listOfRegisteredUsers.size())).
+                body("quantidade", instanceOf(Integer.class)).
+                body("usuarios", instanceOf(List.class));
+    }
+
+    @Test(dataProvider = "userQueryData")
+    public void shouldReturnUserForQueryAndStatusCode200(String query, String queryValue) {
+        SPEC.queryParam(query, queryValue);
+        Response getUsersResponse = getUserRequest(SPEC);
+        getUsersResponse.
+                then().
+                log().all();
+
+        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) SPEC;
+        filterableRequestSpecification.removeQueryParam(query);
     }
 
     @AfterClass
@@ -32,25 +69,5 @@ public class GetUserTests extends TestBase{
         deleteUserRequest(SPEC, validUser1);
         deleteUserRequest(SPEC, validUser2);
         deleteUserRequest(SPEC, validUser3);
-    }
-
-    @DataProvider(name = "usersData")
-    public Object[][] createTestData() {
-        return new Object[][] {
-                {"?nome="+validUser1.name, 1},
-                {"?password="+validUser2.password, 2},
-                {"?email="+validUser3.email, 1},
-                {"?nome="+invalidUser1.name+"&email="+invalidUser1.email, 0}
-        };
-    }
-
-    @Test(dataProvider = "usersData")
-    public void shouldReturnUsersAndStatus200(String query, int totalUsers){
-        Response getUserResponse = getUserRequest(SPEC, query);
-        getUserResponse.
-            then().
-                    assertThat().
-                    statusCode(200).
-                    body("quantidade", equalTo(totalUsers));
     }
 }

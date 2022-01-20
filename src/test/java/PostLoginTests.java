@@ -4,7 +4,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static org.hamcrest.Matchers.*;
-import static requests.UserEndpoint.*;
+import static requests.LoginEndpoints.postLoginRequest;
+import static requests.UserEndpoints.*;
 
 public class PostLoginTests extends TestBase{
 
@@ -14,18 +15,13 @@ public class PostLoginTests extends TestBase{
     @BeforeClass
     public void generateTestData(){
         validUser = new User("Mari", "mari@email.com", "123abc", "true");
-        registerUserRequest(SPEC, validUser);
+        postUserRequest(SPEC, validUser);
         invalidUser = new User("Mari", "mari@email.com", "asdas", "true");
-    }
-
-    @AfterClass
-    public void removeTestData(){
-        deleteUserRequest(SPEC, validUser);
     }
 
     @Test
     public void shouldReturnSuccessMessageAuthTokenAndStatus200(){
-        Response loginSuccessResponse = authenticateUserRequest(SPEC, validUser);
+        Response loginSuccessResponse = postLoginRequest(SPEC, validUser);
         loginSuccessResponse.
             then().
                 assertThat().
@@ -38,12 +34,17 @@ public class PostLoginTests extends TestBase{
     @Test
     public void shouldReturnFailureMessageAndStatus401(){
 
-        Response loginFailureResponse = authenticateUserRequest(SPEC, invalidUser);
+        Response loginFailureResponse = postLoginRequest(SPEC, invalidUser);
         loginFailureResponse.
             then().
                 assertThat().
                 statusCode(401).
                 body("message", equalTo(Constants.MESSAGE_FAILED_LOGIN)).
                 body("authorization", nullValue());
+    }
+
+    @AfterClass
+    public void removeTestData(){
+        deleteUserRequest(SPEC, validUser);
     }
 }

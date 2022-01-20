@@ -6,5 +6,6 @@ public class TestBase {
     public RequestSpecification SPEC = new RequestSpecBuilder()
             .addHeader("accept", "application/json")
             .setBaseUri(Constants.BASE_URL).build();
+    public String banana = "banana";
 
 }

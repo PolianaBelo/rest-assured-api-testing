@@ -3,18 +3,18 @@ import org.json.simple.JSONObject;
 
 public class User {
 
-    public String name;
+    public String nome;
     public String email;
     public String password;
-    public String isAdmin;
+    public String administrador;
     public String authToken;
-    public String userID;
+    public String _id;
 
-    public User(String name, String email, String password, String isAdmin){
-        this.name = name;
+    public User(String nome, String email, String password, String administrador){
+        this.nome = nome;
         this.email = email;
         this.password = password;
-        this.isAdmin = isAdmin;
+        this.administrador = administrador;
     }
 
     public void setUserAuthToken(String authToken){
@@ -22,7 +22,7 @@ public class User {
     }
 
     public void setUserId(String userID){
-        this.userID = userID;
+        this._id = userID;
     }
 
     public String getUserCredentialsAsJson(){

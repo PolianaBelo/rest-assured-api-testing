@@ -3,7 +3,7 @@ import models.User;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static org.hamcrest.Matchers.equalTo;
-import static requests.UserEndpoint.*;
+import static requests.UserEndpoints.*;
 
 public class DeleteUserTest extends TestBase{
 
@@ -12,7 +12,7 @@ public class DeleteUserTest extends TestBase{
     @BeforeClass
     public void generateTestData(){
         validUser = new User("Tatu", "tatu@email.com", "123abc", "true");
-        registerUserRequest(SPEC, validUser);
+        postUserRequest(SPEC, validUser);
     }
 
     @Test
